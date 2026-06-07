@@ -177,9 +177,14 @@ configure_file(
 #-----------------------------------------------------------------------------
 # OpenJPEG build configuration options.
 #option(BUILD_SHARED_LIBS "Build OpenJPEG shared library and link executables against it." ON)
-set (EXECUTABLE_OUTPUT_PATH ${OPENJPEG_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
-set (LIBRARY_OUTPUT_PATH ${OPENJPEG_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
-mark_as_advanced(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
+# Only override the global output paths in a standalone build. When embedded as a subproject (e.g. GDCM
+# sets OPENJPEG_NAMESPACE), OPENJPEG_BINARY_DIR is unset and resolves to "/bin", which would hijack the
+# output location of every target in the host project. The host owns these paths in that case.
+if(OPENJPEG_STANDALONE)
+  set (EXECUTABLE_OUTPUT_PATH ${OPENJPEG_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
+  set (LIBRARY_OUTPUT_PATH ${OPENJPEG_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
+  mark_as_advanced(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
+endif()
 
 #-----------------------------------------------------------------------------
 # configure name mangling to allow multiple libraries to coexist
